@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{ store.name }} - Products {% endblock title %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+{% endblock link %}
+
+{% block content %}
+<div class="cursor-dot" data-cursor-dot></div>
+<div class="cursor-outline" data-cursor-outline></div>
+<div class="main">
+    <nav>
+        <img src="{% static 'image/logo1.png' %}" alt="" class="logo">
+        <p>{{ store.name }}</p>
+        <div class="navword">
+            <div class="in01"><a href="{% url 'home' %}"><input type="submit" value="HOME"></a></div>
+            <div class="in02"><a href="#"><input type="submit" value="STORE"></a></div>
+            <div class="in03"><a href="{% url 'cart_view' %}"><input type="submit" value="CART"></a></div>
+            <div class="in04"><a href="#"><input type="submit" value="BLOG"></a></div>
+            <div class="in05"><a href="#"><input type="submit" value="Support"></a></div>
+            <a href="{% url 'user_profile' %}"><img src="{% static 'image/accountwhite.png' %}" alt="Account" height="25px" width="25px" id="Account"></a>
+        </div>
+    </nav>
+    <div class="shop">
+        <div class="space"></div>
+        <div class="list">
+            {% for product in products %}
+            <div class="product" onclick="showProductPopup({{ product.id }})">
+                <div class="image">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                </div>
+                <p>
+                    {{ product.name }} <br>
+                    Rs. {{ product.price }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<footer class="social-icons">
+    <div></div>
+    <div class="iconspa">
+        <a href="https://www.facebook.com" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="https://www.instagram.com" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.github.com" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+    </div>
+    <div>
+        <img src="{% static 'image/volume-up0.png' %}" alt="off" class="sounds" id="iconSong">
+    </div>
+</footer>
+<audio autoplay loop id="mySong">
+    <source src="{% static 'audio/royal1.mp3' %}" type="audio/mp3">
+</audio>
+
+<!-- Popup for product details -->
+<div class="selling" id="productPopup" style="display: none;">
+    <div class="productbox">
+        <span class="close" onclick="hideProductPopup()">&times;</span>
+        <div class="image01">
+            <img id="popupImage" src="" alt="">
+            <form action="" method="POST" id="addToCartForm">
+                {% csrf_token %}
+                <input type="submit" value="Add to Cart" class="addToCart">
+            </form>
+        </div>
+        <div class="content">
+            <div class="detail">
+                <h2 id="popupTitle"></h2>
+                <p id="popupPrice"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <script src="{% static 'js/product.js' %}"></script> -->
+<script>
+    const products = [
+        {% for product in products %}
+        {
+            id: {{ product.id }},
+            name: "{{ product.name }}",
+            price: "Rs. {{ product.price }}",
+            imageUrl: "{{ product.image.url }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function showProductPopup(productId) {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            document.getElementById('popupTitle').innerText = product.name;
+            document.getElementById('popupPrice').innerText = product.price;
+            document.getElementById('popupImage').src = product.imageUrl;
+            document.getElementById('addToCartForm').action = "{% url 'add_to_cart' product_id=0 %}".replace('0', productId);
+            document.getElementById('productPopup').style.display = 'block';
+        }
+    }
+
+    function hideProductPopup() {
+        document.getElementById('productPopup').style.display = 'none';
+    }
+    
+    var mySong = document.getElementById("mySong");
+    var iconSong = document.getElementById("iconSong");
+
+    window.onload = function() {
+        setTimeout(() => {
+            mySong.muted = false;
+        }, 1000);
+    };
+
+    iconSong.onclick = function() {
+        if (mySong.paused) {
+            mySong.play();
+            iconSong.src = "{% static 'image/volume-up0.png' %}";
+        } else {
+            mySong.pause();
+            iconSong.src = "{% static 'image/sound-off0.png' %}";
+        }
+    };
+    window.addEventListener("scroll", function() {
+    let nav = document.querySelector("nav");
+    nav.classList.toggle("sticky", window.scrollY > 0);
+    let nav_a = document.querySelector(".in01 input");
+    nav_a.classList.toggle("sticky", window.scrollY > 0);
+    let nav_b = document.querySelector(".in02 input");
+    nav_b.classList.toggle("sticky", window.scrollY > 0);
+    let nav_c = document.querySelector(".in03 input");
+    nav_c.classList.toggle("sticky", window.scrollY > 0);
+    let nav_d = document.querySelector(".in04 input");
+    nav_d.classList.toggle("sticky", window.scrollY > 0);
+    let nav_e = document.querySelector(".in05 input");
+    nav_e.classList.toggle("sticky", window.scrollY > 0);
+
+    let image = document.getElementById("Account");
+    if (window.scrollY > 0) {
+        image.src = "{% static 'image/accountblack.png' %}";
+        image.style.transition = "0.6s";
+    } else {
+        image.src = "{% static 'image/accountwhite.png' %}";
+    }
+});
+const cursorDot = document.querySelector("[data-cursor-dot]");
+const cursorOutline = document.querySelector("[data-cursor-outline]");
+let hideTimeout;
+
+function showCursor() {
+    cursorDot.style.opacity = '1';
+    cursorOutline.style.opacity = '1';
+}
+
+function hideCursor() {
+    cursorDot.style.opacity = '0';
+    cursorOutline.style.opacity = '0';
+}
+
+function updateCursor(e) {
+    clearTimeout(hideTimeout);
+
+    const posX = e.clientX;
+    const posY = e.clientY;
+
+    cursorDot.style.left = `${posX}px`;
+    cursorDot.style.top = `${posY}px`;
+
+    cursorOutline.style.left = `${posX}px`;
+    cursorOutline.style.top = `${posY}px`;
+
+    showCursor();
+
+    hideTimeout = setTimeout(hideCursor, 1000);
+}
+
+window.addEventListener("mousemove", updateCursor);
+
+hideCursor();
+</script>
+{% endblock %}

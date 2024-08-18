@@ -1,0 +1,24 @@
+<!-- templates/payment.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1>Payment</h1>
+    <p>Total Amount: Rs. {{ amount|floatformat:2 }}</p>
+    <form method="POST" action="{% url 'payment_success' %}">
+        {% csrf_token %}
+        <script src="https://checkout.razorpay.com/v1/checkout.js"
+                data-key="{{ razorpay_key_id }}"
+                data-amount="{{ amount }}"
+                data-currency="INR"
+                data-order_id="{{ razorpay_order_id }}"
+                data-buttontext="Pay Now"
+                data-name="Estilo Rico"
+                data-description="Shopping Cart Payment"
+                data-image="{% static 'image/logo1.png' %}"
+                data-prefill.name="{{ request.user.username }}"
+                data-prefill.email="{{ request.user.email }}"
+                data-theme.color="#F37254">
+        </script>
+    </form>
+</div>
+{% endblock %}

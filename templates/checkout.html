@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block link %} <link rel="stylesheet" href="{% static 'css/checkout.css' %}"> {% endblock %}
+{% block content %}
+<div class="cursor-dot" data-cursor-dot></div>
+<div class="cursor-outline" data-cursor-outline></div>
+<div class="main">
+    <nav>
+        <img src="{% static 'image/logo1.png' %}" alt="" class="logo">
+        <div class="navword">
+            <div class="in01"><a href="{% url 'home' %}"><input type="submit" value="HOME"></a></div>
+            <div class="in02"><a href="#"><input type="submit" value="STORE"></a></div>
+            <div class="in03"><a href="{% url 'cart_view' %}"><input type="submit" value="CART"></a></div>
+            <div class="in04"><a href="#"><input type="submit" value="BLOG"></a></div>
+            <div class="in05"><a href="#"><input type="submit" value="Support"></a></div>
+            <a href="{% url 'user_profile' %}"><img src="{% static 'image/accountwhite.png' %}" alt="Account" height="25px" width="25px" id="Account"></a>
+        </div>
+    </nav>
+    <div class="checkout-container">
+        <h2 style="font-size:10vw;">Checkout</h2>
+        <div class="order-summary">
+            <h3 style="font-size:10vw;">Order Summary</h3>
+            <h4>Total: Rs. {{ amount }}</h4>
+        </div>
+        <div class="payment-section">
+            <h3>Payment</h3>
+            <form id="payment-form" method="POST">
+                {% csrf_token %}
+                <script src="https://checkout.razorpay.com/v1/checkout.js"
+                    data-key="{{ razorpay_key_id }}"
+                    data-amount="{{ amount }}"
+                    data-currency="INR"
+                    data-order_id="{{ razorpay_order_id }}"
+                    data-buttontext="Pay with Razorpay"
+                    data-name="Your Site Name"
+                    data-description="Order Payment"
+                    data-image="{% static 'image/logo1.png' %}"
+                    data-prefill.name="{{ request.user.username }}"
+                    data-prefill.email="{{ request.user.email }}"
+                    data-theme.color="#F37254">
+                </script>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
